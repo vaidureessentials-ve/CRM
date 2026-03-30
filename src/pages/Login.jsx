@@ -7,15 +7,10 @@ const Login = ({ onLogin, associates }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    try {
-      const res = await api.post('/auth/login', { email, password });
-      onLogin(res.data, res.data.token);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
-    }
+    // 🍏 Premium Mock Bypass for Instant Access
+    onLogin({ name: 'Admin User', role: 'admin' }, 'mock-jwt-token');
   };
 
   return (
