@@ -126,9 +126,9 @@ const MIS = ({ user }) => {
           <h3 className="text-sm font-bold text-textMain mb-6">Status Distribution</h3>
           <div className="flex-1 flex flex-col justify-center space-y-6">
             <StatusProgress label="Lead Converted" percent={74} color="bg-primary" />
-            <StatusProgress label="Follow Up Pending" percent={42} color="bg-blue-500" />
+            <StatusProgress label="Follow Up Pending" percent={42} color="bg-accent/40" />
             <StatusProgress label="Client Retention" percent={88} color="bg-emerald-500" />
-            <StatusProgress label="System Utilization" percent={92} color="bg-amber-500" />
+            <StatusProgress label="System Utilization" percent={92} color="bg-accent" />
           </div>
           <div className="mt-8 pt-6 border-t border-gray-50">
             <button className="w-full py-2.5 text-[10px] font-bold text-primary hover:bg-primary/5 rounded-xl transition-all uppercase tracking-widest flex items-center justify-center gap-2">
