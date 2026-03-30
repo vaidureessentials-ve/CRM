@@ -23,17 +23,17 @@ const StatTile = ({ label, value, sub, color = 'gray', isDarkMode }) => {
   const colorMap = {
     gray: isDarkMode ? 'text-white' : 'text-primary',
     green: 'text-accent',
-    blue: 'text-blue-400',
-    amber: 'text-orange-400',
-    purple: 'text-violet-400',
+    blue: 'text-emerald-400',
+    amber: 'text-primary',
+    purple: 'text-emerald-500',
   };
 
   const glowMap = {
     gray: 'group-hover:shadow-white/5',
     green: 'group-hover:shadow-accent/10',
-    blue: 'group-hover:shadow-blue-500/10',
-    amber: 'group-hover:shadow-orange-500/10',
-    purple: 'group-hover:shadow-violet-500/10',
+    blue: 'group-hover:shadow-emerald-500/10',
+    amber: 'group-hover:shadow-primary/10',
+    purple: 'group-hover:shadow-emerald-500/10',
   };
 
   return (
@@ -75,7 +75,7 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
     <div className="p-6 space-y-8 fade-in flex-1 overflow-y-auto custom-scrollbar">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'} flex items-center gap-3`}>
+          <h2 className={`text-2xl font-black tracking-tight ${isDarkMode ? 'text-white' : 'text-textMain'} flex items-center gap-3`}>
             Market Insights
             <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
           </h2>
@@ -171,9 +171,9 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
               </div>
               <p className="text-xl font-black text-emerald-500 group-hover:scale-105 transition-transform duration-500">Rs. 0</p>
             </div>
-            <div className="p-6 glass-panel border-none group text-orange-400">
+            <div className="p-6 glass-panel border-none group text-emerald-600">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-orange-500/10"><TrendingUp size={14} className="text-orange-500" /></div>
+                <div className="p-2 rounded-lg bg-emerald-500/10"><TrendingUp size={14} className="text-accent" /></div>
                 <p className="text-[9px] font-black uppercase tracking-widest text-textMuted">Remaining</p>
               </div>
               <p className="text-xl font-black group-hover:scale-105 transition-transform duration-500">Rs. 1.6L</p>
