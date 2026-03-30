@@ -1,0 +1,79 @@
+:root {
+  --primary: #064e3b; /* Deep Forest Green */
+  --primary-hover: #065f46;
+  --accent: #10b981; /* Premium Emerald */
+  --accent-hover: #059669;
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --text-main: #064e3b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --sidebar-active: #ecfdf5; /* Very Light Mint */
+}
+
+.dark {
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --accent: #10b981;
+  --background: #020617; /* Keep Deep Navy Black for dark mode */
+  --surface: #0a0f1e;    
+  --text-main: #f0fdf4; /* Minty White */
+  --text-muted: #94a3b8;
+  --border: rgba(16, 185, 129, 0.1);
+  --sidebar-active: rgba(16, 185, 129, 0.1);
+}
+
+/* Custom Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-textMain antialiased transition-colors duration-300;
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+.glass-panel {
+  @apply bg-white border border-gray-100 shadow-sm rounded-2xl transition-all duration-300;
+}
+
+.dark .glass-panel {
+  @apply bg-white/[0.03] border-white/[0.08] shadow-2xl shadow-black/40 backdrop-blur-md;
+}
+
+.premium-gradient {
+  background: linear-gradient(135deg, var(--accent) 0%, #065f46 100%);
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-accent to-emerald-700;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s infinite ease-in-out;
+}
