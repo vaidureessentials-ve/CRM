@@ -259,7 +259,7 @@ const Leads = ({ user }) => {
                         <span className="text-[10px] text-textMuted font-black uppercase tracking-widest bg-background px-2 py-0.5 rounded-lg border border-border/50">{lead.source}</span>
                         <span className="text-[10px] text-accent font-black uppercase tracking-widest">{lead.segment}</span>
                       </div>
-                      <span className="text-[10px] text-textMuted mt-1.5 font-medium italic opacity-60">{new Date(lead.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                      <span className="text-[10px] text-textMuted mt-1.5 font-medium opacity-60">{new Date(lead.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                     </div>
                   </td>
                   <td className="px-3 py-5">
@@ -322,7 +322,7 @@ const Leads = ({ user }) => {
         <div className="px-6 py-4 bg-background/30 border-t border-border flex items-center justify-between text-[10px] font-black text-textMuted uppercase tracking-widest">
           <span>Active Dataset Scope: {filtered.length} / {leads.length} Records Detected</span>
           <div className="flex gap-2">
-             <span className="opacity-40 italic">System Optimized for High Throughput</span>
+             <span className="opacity-40">System Optimized for High Throughput</span>
           </div>
         </div>
       </div>
@@ -334,7 +334,7 @@ const Leads = ({ user }) => {
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-accent to-primary"></div>
             <div className="flex justify-between items-start mb-8">
               <div>
-                <h3 className="text-2xl font-black text-textMain tracking-tighter uppercase italic">Lead Acquisition</h3>
+                <h3 className="text-2xl font-black text-textMain tracking-tighter uppercase">Lead Acquisition</h3>
                 <p className="text-[10px] text-textMuted font-black uppercase tracking-[0.2em] mt-1">Injecting new data node into the prospect pool</p>
               </div>
               <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-background rounded-full text-textMuted transition-colors"><XCircle size={24} /></button>
@@ -409,7 +409,7 @@ const Leads = ({ user }) => {
               <div>
                 <div className="flex items-center gap-3 mb-1">
                    <div className="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center font-black text-xs border border-accent/20">{selectedLead.name.charAt(0)}</div>
-                   <h3 className="text-2xl font-black text-textMain tracking-tighter uppercase italic">{selectedLead.name}</h3>
+                   <h3 className="text-2xl font-black text-textMain tracking-tighter uppercase">{selectedLead.name}</h3>
                 </div>
                 <p className="text-[10px] text-textMuted font-black uppercase tracking-[0.2em] ml-11">{selectedLead.phone} • {selectedLead.source}</p>
               </div>
@@ -426,7 +426,7 @@ const Leads = ({ user }) => {
                 <BookOpen size={12} className="text-accent" /> Intelligence Node
               </p>
               <p className="text-sm text-textMain leading-relaxed font-bold">
-                {selectedLead.notes || <span className="italic text-textMuted/40 font-normal">Initial observation logs are empty for this prospect.</span>}
+                {selectedLead.notes || <span className="text-textMuted/40 font-normal">Initial observation logs are empty for this prospect.</span>}
               </p>
             </div>
 

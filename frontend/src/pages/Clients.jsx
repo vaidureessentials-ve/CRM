@@ -73,7 +73,7 @@ const Clients = ({ user, associates }) => {
       <div className="flex justify-between items-end mb-10 border-b border-border pb-8">
         <div className="flex items-center gap-6">
           <div>
-            <h2 className="text-4xl font-black text-textMain tracking-tighter uppercase italic">Client Directory</h2>
+            <h2 className="text-4xl font-black text-textMain tracking-tighter uppercase">Client Directory</h2>
             <p className="text-[10px] text-textMuted font-black uppercase tracking-[0.2em] mt-1">Managed database of verified status nodes</p>
           </div>
           {user?.role === 'admin' && (
@@ -125,7 +125,7 @@ const Clients = ({ user, associates }) => {
                   <td className="px-4 py-5 text-textMuted font-bold uppercase tracking-widest text-[10px]">{client.company || '-'}</td>
                   <td className="px-4 py-5 text-textMain font-black text-xs tracking-wider">{client.phone}</td>
                   <td className="px-4 py-5">
-                    <div className="max-w-[150px] truncate text-[10px] text-textMuted font-medium italic opacity-60" title={client.notes}>
+                    <div className="max-w-[150px] truncate text-[10px] text-textMuted font-medium opacity-60" title={client.notes}>
                         {client.notes || 'No logs detected'}
                     </div>
                   </td>
@@ -183,7 +183,7 @@ const Clients = ({ user, associates }) => {
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-accent to-primary"></div>
             <div className="flex justify-between items-start mb-8">
               <div>
-                <h3 className="text-2xl font-black text-textMain tracking-tighter uppercase italic">{editingClient ? 'Recalibrate Node' : 'Initialize Client'}</h3>
+                <h3 className="text-2xl font-black text-textMain tracking-tighter uppercase">{editingClient ? 'Recalibrate Node' : 'Initialize Client'}</h3>
                 <p className="text-[10px] text-textMuted font-black uppercase tracking-[0.2em] mt-1">Updating high-priority database entries</p>
               </div>
               <button onClick={handleCloseModal} className="p-2 hover:bg-background rounded-full text-textMuted transition-colors"><XCircle size={24} /></button>
