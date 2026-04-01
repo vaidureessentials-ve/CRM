@@ -8,7 +8,7 @@ import {
   Filter, 
   CheckCircle, 
   Clock, 
-  AlertCircle,
+  XCircle,
   MoreHorizontal,
   LogOut,
   Calendar,
@@ -246,7 +246,7 @@ const FreeTrials = () => {
                    <p className="text-[10px] text-textMuted font-black uppercase tracking-[0.2em] mt-1">Initializing prospect lifecycle sequence</p>
                 </div>
                 <button onClick={() => setShowModal(false)} className="text-textMuted hover:text-textMain transition-colors">
-                   <AlertCircle size={28} />
+                   <XCircle size={28} />
                 </button>
              </div>
              

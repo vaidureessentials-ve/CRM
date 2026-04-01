@@ -5,6 +5,7 @@ import { Phone, PhoneMissed, PhoneOutgoing, Clock } from 'lucide-react';
 const Calls = ({ user, associates }) => {
   const [calls, setCalls] = useState([]);
   const [viewMode, setViewMode] = useState('mine');
+  const [playingId, setPlayingId] = useState(null);
 
   useEffect(() => {
     fetchCalls();
@@ -78,17 +79,30 @@ const Calls = ({ user, associates }) => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-12">
-                  <div className="text-right">
-                    <p className="text-[10px] font-black text-textMuted uppercase tracking-widest opacity-40 mb-1 italic">Temporal Shift</p>
-                    <p className="text-sm font-black text-textMain flex items-center justify-end tracking-tighter">
-                      <Clock size={14} className="mr-2 text-textMuted" />
-                      {formatDuration(call.duration)}
-                    </p>
-                    <p className="text-[9px] text-textMuted font-black uppercase tracking-widest mt-1 tabular-nums">
-                      {new Date(call.createdAt).toLocaleString(undefined, {
-                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                      })}
-                    </p>
+                  <div className="flex items-center space-x-4">
+                    {call.recordingUrl && (
+                      <button 
+                        onClick={() => setPlayingId(playingId === call._id ? null : call._id)}
+                        className={`p-3 rounded-xl border transition-all ${
+                          playingId === call._id ? 'bg-primary text-white border-primary' : 'bg-background text-primary border-border hover:border-primary'
+                        }`}
+                        title={playingId === call._id ? "Close Audio" : "Listen to Recording"}
+                      >
+                        <Phone size={14} className={playingId === call._id ? "animate-pulse" : ""} />
+                      </button>
+                    )}
+                    <div className="text-right">
+                      <p className="text-[10px] font-black text-textMuted uppercase tracking-widest opacity-40 mb-1 italic">Temporal Shift</p>
+                      <p className="text-sm font-black text-textMain flex items-center justify-end tracking-tighter">
+                        <Clock size={14} className="mr-2 text-textMuted" />
+                        {formatDuration(call.duration)}
+                      </p>
+                      <p className="text-[9px] text-textMuted font-black uppercase tracking-widest mt-1 tabular-nums">
+                        {new Date(call.createdAt).toLocaleString(undefined, {
+                          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
                   <div className="w-28 text-right">
                      <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-full border shadow-sm transition-all ${
@@ -100,6 +114,17 @@ const Calls = ({ user, associates }) => {
                      </span>
                   </div>
                 </div>
+                {playingId === call._id && (
+                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t border-border flex items-center gap-4 animate-in slide-in-from-bottom duration-300">
+                    <audio 
+                      src={`${api.defaults.baseURL.replace('/api', '')}${call.recordingUrl}`} 
+                      controls 
+                      autoPlay 
+                      className="flex-1 h-8"
+                    />
+                    <button onClick={() => setPlayingId(null)} className="text-[10px] font-black uppercase tracking-widest text-textMuted hover:text-red-500">Close</button>
+                  </div>
+                )}
               </li>
             ))}
             {calls.length === 0 && (

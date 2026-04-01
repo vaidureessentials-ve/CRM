@@ -95,8 +95,8 @@ function App() {
               />
             )}
             <div className={`
-              ${isMobile ? 'fixed inset-y-0 left-0 z-30 transform transition-transform duration-300' : 'relative'}
-              ${isMobile && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+              ${isMobile ? 'fixed inset-y-0 left-0 z-30 transform transition-transform duration-500' : 'relative transition-all duration-500'}
+              ${!isSidebarOpen ? (isMobile ? '-translate-x-full' : 'w-0 -translate-x-full opacity-0 overflow-hidden') : (isMobile ? 'translate-x-0' : 'w-64 translate-x-0 opacity-100')}
             `}>
               <Sidebar onLogout={handleLogout} user={user} isMobile={isMobile} onClose={() => setIsSidebarOpen(false)} isDarkMode={isDarkMode} />
             </div>
@@ -130,7 +130,7 @@ function App() {
               <Routes>
                 <Route path="/login" element={!token ? <Login onLogin={handleLogin} /> : <Navigate to="/dashboard" />} />
                 <Route path="/dashboard/clients/:id" element={token ? <ClientDetail user={user} /> : <Navigate to="/login" />} />
-                <Route path="/dashboard/*" element={token ? <Dashboard user={user} onLogout={handleLogout} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} /> : <Navigate to="/login" />} />
+                <Route path="/dashboard/*" element={token ? <Dashboard user={user} onLogout={handleLogout} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} isMobile={isMobile} /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
               </Routes>
             </ErrorBoundary>

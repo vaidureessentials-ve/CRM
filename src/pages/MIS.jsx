@@ -11,6 +11,7 @@ import {
 
 const MIS = ({ user }) => {
   const [stats, setStats] = useState(null);
+  const [totalSales, setTotalSales] = useState(0);
   const [loading, setLoading] = useState(true);
   const [chartKey, setChartKey] = useState(0);
 
@@ -28,8 +29,12 @@ const MIS = ({ user }) => {
   useEffect(() => {
     const fetchMISData = async () => {
       try {
-        const res = await api.get('/admin/stats');
-        setStats(res.data);
+        const statsRes = await api.get('/admin/stats');
+        setStats(statsRes.data);
+        
+        const salesRes = await api.get('/salesorders');
+        const total = salesRes.data.reduce((sum, order) => sum + (order.amount || 0), 0);
+        setTotalSales(total);
       } catch (err) {
         console.error('Failed to fetch MIS data', err);
       } finally {
@@ -79,7 +84,7 @@ const MIS = ({ user }) => {
 
       {/* Primary Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <MISCard label="Global Revenue" value="Rs. 8,42,000" trend="+12.5%" icon={TrendingUp} />
+        <MISCard label="Global Revenue" value={`Rs. ${totalSales.toLocaleString('en-IN')}`} trend="+12.5%" icon={TrendingUp} />
         <MISCard label="Lead Efficiency" value="68.4%" trend="+2.1%" icon={Target} />
         <MISCard label="Active Associates" value={stats?.totalUsers || 0} trend="Stable" icon={Users} />
         <MISCard label="Conversion Rate" value="24.2%" trend="-0.4%" icon={Activity} isNegative={true} />

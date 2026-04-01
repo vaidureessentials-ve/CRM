@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/api';
 import { 
   Shield, Users, Activity, ExternalLink, UserPlus, 
-  Settings, Database, List, CheckCircle, AlertCircle
+  Settings, Database, List, CheckCircle, XCircle,
+  Plus, Edit2, Trash2, Palette
 } from 'lucide-react';
+import { getRoles, addRole, deleteRole, updateRole } from '../utils/roleManager';
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('users');
@@ -13,7 +15,10 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingAssoc, setEditingAssoc] = useState(null);
-  const [newAssoc, setNewAssoc] = useState({ name: '', email: '', password: '', sipExtension: '10x', role: 'associate' });
+  const [roles, setRoles] = useState(getRoles());
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [newRole, setNewRole] = useState({ label: '', color: 'blue', description: '' });
+  const [newAssoc, setNewAssoc] = useState({ name: '', email: '', password: '', sipExtension: '10x', role: roles[1]?.id || 'business_associate' });
 
   useEffect(() => {
     fetchData();
@@ -58,7 +63,7 @@ const Admin = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingAssoc(null);
-    setNewAssoc({ name: '', email: '', password: '', sipExtension: '10x', role: 'associate' });
+    setNewAssoc({ name: '', email: '', password: '', sipExtension: '10x', role: 'business_associate' });
   };
 
   const handleImportLeads = async (file) => {
@@ -87,6 +92,7 @@ const Admin = () => {
 
   const tabs = [
     { id: 'users', label: 'User Management', icon: Users },
+    { id: 'roles', label: 'Member Status', icon: Palette },
     { id: 'system', label: 'System Analytics', icon: Activity },
     { id: 'leads', label: 'Lead Controls', icon: Database },
     { id: 'logs', label: 'Activity Logs', icon: List },
@@ -167,11 +173,21 @@ const Admin = () => {
                         </td>
                         <td className="px-8 py-6 text-textMuted text-xs font-medium tracking-tight">{assoc.email}</td>
                         <td className="px-8 py-6">
-                          <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${
-                            assoc.role === 'admin' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20 shadow-purple-500/5' : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                          }`}>
-                            {assoc.role}
-                          </span>
+                           {(() => {
+                             const roleObj = roles.find(r => r.id === assoc.role) || { label: assoc.role, color: 'blue' };
+                             const colorMap = {
+                               purple: 'bg-purple-500/10 text-purple-500 border-purple-500/20 shadow-purple-500/5',
+                               amber: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+                               blue: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+                               emerald: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+                               red: 'bg-red-500/10 text-red-500 border-red-500/20'
+                             };
+                             return (
+                               <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${colorMap[roleObj.color] || colorMap.blue}`}>
+                                 {roleObj.label}
+                               </span>
+                             );
+                           })()}
                         </td>
                         <td className="px-8 py-6 text-center font-black text-textMain tracking-tighter text-lg">{assoc.clients?.length || 0}</td>
                         <td className="px-8 py-6 text-right pr-10">
@@ -307,6 +323,91 @@ const Admin = () => {
               </div>
             )}
 
+            {/* ROLES TAB */}
+            {activeTab === 'roles' && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex justify-between items-center bg-surface p-10 rounded-[2.5rem] border border-border">
+                  <div>
+                    <h3 className="text-2xl font-black text-textMain tracking-tighter uppercase italic">Permission Matrix Control</h3>
+                    <p className="text-[10px] text-textMuted font-black uppercase tracking-[0.2em] mt-1">Configure global member status levels and visual markers</p>
+                  </div>
+                  <button onClick={() => setShowRoleModal(true)} className="bg-primary text-white px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/25 flex items-center hover:opacity-90 transition-all active:scale-95">
+                    <Plus size={18} className="mr-3" /> New System Role
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {roles.map(role => (
+                    <div key={role.id} className="bg-surface border border-border p-8 rounded-[2rem] shadow-sm relative overflow-hidden group hover:border-primary/30 transition-all">
+                       <div className={`absolute top-0 left-0 w-1.5 h-full ${
+                         role.color === 'purple' ? 'bg-purple-500' :
+                         role.color === 'amber' ? 'bg-amber-500' :
+                         role.color === 'emerald' ? 'bg-emerald-500' :
+                         role.color === 'red' ? 'bg-red-500' : 'bg-blue-500'
+                       }`}></div>
+                       <div className="flex justify-between items-start mb-6">
+                          <div>
+                            <h4 className="text-sm font-black text-textMain uppercase tracking-widest mb-1">{role.label}</h4>
+                            <p className="text-[9px] text-textMuted font-medium uppercase tracking-tight italic">{role.id}</p>
+                          </div>
+                          <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                             {!['admin', 'business_associate', 'team_leader'].includes(role.id) && (
+                               <button onClick={() => setRoles(deleteRole(role.id))} className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 size={12}/></button>
+                             )}
+                          </div>
+                       </div>
+                       <p className="text-xs text-textMuted font-medium leading-relaxed mb-6 h-10 overflow-hidden">{role.description || 'No override description provided'}</p>
+                       <div className="flex items-center gap-3">
+                          <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${
+                             role.color === 'purple' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
+                             role.color === 'amber' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                             role.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                             role.color === 'red' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+                          }`}>
+                            Active Status
+                          </span>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+
+                {showRoleModal && (
+                  <div className="fixed inset-0 bg-background/60 backdrop-blur-md flex items-center justify-center z-[120] p-4 animate-in zoom-in-95 duration-300">
+                    <div className="bg-surface rounded-[2.5rem] w-full max-w-md shadow-2xl border border-border p-10 space-y-8">
+                       <h3 className="text-xl font-black text-textMain tracking-tighter uppercase italic">Define Interaction Role</h3>
+                       <div className="space-y-6">
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">Role Label</label>
+                             <input type="text" value={newRole.label} onChange={e => setNewRole({...newRole, label: e.target.value})} className="w-full px-5 py-3 bg-background border border-border rounded-xl focus:border-primary outline-none transition-all font-bold text-xs" placeholder="e.g. Senior Associate" />
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">Color Marker</label>
+                             <div className="flex gap-3 pt-1">
+                                {['blue', 'purple', 'amber', 'emerald', 'red'].map(c => (
+                                  <button key={c} onClick={() => setNewRole({...newRole, color: c})} className={`w-8 h-8 rounded-lg transition-transform ${c === 'blue' ? 'bg-blue-500' : c === 'purple' ? 'bg-purple-500' : c === 'amber' ? 'bg-amber-500' : c === 'emerald' ? 'bg-emerald-500' : 'bg-red-500'} ${newRole.color === c ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-surface' : 'opacity-40 hover:opacity-100 hover:scale-110'}`}></button>
+                                ))}
+                             </div>
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">Description Protocol</label>
+                             <textarea value={newRole.description} onChange={e => setNewRole({...newRole, description: e.target.value})} className="w-full px-5 py-3 bg-background border border-border rounded-xl focus:border-primary outline-none transition-all font-bold text-xs resize-none h-20" placeholder="Define role boundaries..."></textarea>
+                          </div>
+                       </div>
+                       <div className="flex gap-4">
+                          <button onClick={() => setShowRoleModal(false)} className="flex-1 py-3 border border-border rounded-xl font-black text-textMuted uppercase tracking-widest text-[10px]">Cancel</button>
+                          <button onClick={() => {
+                             if (!newRole.label) return;
+                             setRoles(addRole(newRole));
+                             setNewRole({ label: '', color: 'blue', description: '' });
+                             setShowRoleModal(false);
+                          }} className="flex-1 py-3 bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20">Authorize</button>
+                       </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
         )}
       </div>
@@ -322,7 +423,7 @@ const Admin = () => {
                   <p className="text-[10px] text-textMuted font-black uppercase tracking-[0.2em] mt-1">Provisioning new access node for system hierarchy</p>
                </div>
                <button onClick={handleCloseModal} className="text-textMuted hover:text-textMain transition-colors">
-                  <AlertCircle size={28} />
+                  <XCircle size={28} />
                </button>
             </div>
 
@@ -345,6 +446,18 @@ const Admin = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">SIP Extension ID</label>
                   <input required type="text" value={newAssoc.sipExtension} onChange={e => setNewAssoc({...newAssoc, sipExtension: e.target.value})} className="w-full px-6 py-4 bg-background border border-border rounded-2xl focus:border-primary outline-none transition-all font-bold text-textMain shadow-sm" />
+                </div>
+                 <div className="space-y-2">
+                  <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">Permission Matrix (Role)</label>
+                  <select 
+                    value={newAssoc.role} 
+                    onChange={e => setNewAssoc({...newAssoc, role: e.target.value})} 
+                    className="w-full px-6 py-4 bg-background border border-border rounded-2xl focus:border-primary outline-none transition-all font-bold text-textMain shadow-sm cursor-pointer capitalize"
+                  >
+                    {roles.map(r => (
+                      <option key={r.id} value={r.id}>{r.label}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="flex gap-4 pt-4">

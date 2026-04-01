@@ -15,7 +15,8 @@ export default {
         background: "var(--background)",
         textMain: "var(--text-main)",
         textMuted: "var(--text-muted)",
-        border: "var(--border)"
+        border: "var(--border)",
+        boltBlack: "#2F313F"
       }
     },
   },

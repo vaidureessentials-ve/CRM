@@ -1,14 +1,15 @@
 :root {
   --primary: #064e3b; /* Deep Forest Green */
   --primary-hover: #065f46;
-  --accent: #10b981; /* Premium Emerald */
-  --accent-hover: #059669;
+  --accent: #34BB78; /* Vibrant Bolt Green */
+  --accent-hover: #2DA167;
+  --bolt-black: #2F313F; /* Bolt Charcoal */
   --background: #ffffff;
   --surface: #f8fafc;
-  --text-main: #065f46; /* Slightly lighter, more vibrant dark green */
+  --text-main: #2F313F; /* Using Bolt Charcoal as primary text */
   --text-muted: #64748b;
   --border: #e2e8f0;
-  --sidebar-active: #ecfdf5; /* Very Light Mint */
+  --sidebar-active: #ECFDF5;
 }
 
 .dark {

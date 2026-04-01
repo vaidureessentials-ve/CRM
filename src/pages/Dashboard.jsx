@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/api';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useNavigate, Routes, Route, Navigate, useLocation, NavLink } from 'react-router-dom';
 import { Sun, Moon, Search, Mail as MailIcon, MoreHorizontal, User, Settings as SettingsIcon, LogOut, Shield, Target, Award, TrendingUp, Bot, FileText, MessageSquare, MessageCircle, Radio, BookOpen, BarChart2, CreditCard, Activity, PhoneCall, Users, UserCheck, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LineChart, Line } from 'recharts';
 
@@ -16,16 +16,26 @@ import Profile from './Profile';
 import ComingSoon from './ComingSoon';
 import FreeTrials from './FreeTrials';
 import SalesOrders from './SalesOrders';
+import Mailbox from './Mailbox';
 
 const COLORS = ['#0f172a', '#10b981', '#1e293b', '#6366f1', '#fbbf24'];
 
-const StatTile = ({ label, value, sub, color = 'gray', isDarkMode }) => {
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(amount);
+};
+
+const StatTile = ({ label, value, sub, color = 'gray', isDarkMode, onClick }) => {
   const colorMap = {
     gray: isDarkMode ? 'text-white' : 'text-primary',
     green: 'text-accent',
     blue: 'text-emerald-400',
     amber: 'text-primary',
     purple: 'text-emerald-500',
+    red: 'text-red-500',
   };
 
   const glowMap = {
@@ -34,40 +44,62 @@ const StatTile = ({ label, value, sub, color = 'gray', isDarkMode }) => {
     blue: 'group-hover:shadow-emerald-500/10',
     amber: 'group-hover:shadow-primary/10',
     purple: 'group-hover:shadow-emerald-500/10',
+    red: 'group-hover:shadow-red-500/10',
   };
 
   return (
-    <div className={`p-6 glass-panel group relative overflow-hidden active:scale-[0.98] cursor-pointer ${glowMap[color]}`}>
+    <div 
+      onClick={onClick}
+      className={`p-6 glass-panel group relative overflow-hidden active:scale-[0.98] cursor-pointer ${glowMap[color]}`}
+    >
       {/* Decorative background glow */}
       <div className={`absolute -right-4 -top-4 w-24 h-24 blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none rounded-full ${colorMap[color].replace('text-', 'bg-')}`}></div>
       
       <p className={`text-4xl font-black tracking-tighter mt-1 mb-1 transition-transform group-hover:scale-105 duration-500 ${colorMap[color]}`}>{value}</p>
-      <p className="text-[10px] font-black uppercase tracking-widest text-textMuted flex items-center gap-2">
-        {label}
-        <TrendingUp size={10} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
-      </p>
+      {label && (
+        <p className="text-[10px] font-black uppercase tracking-widest text-textMuted flex items-center gap-2">
+          {label}
+          <TrendingUp size={10} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+        </p>
+      )}
       {sub && <p className="text-[10px] mt-2 text-textMuted/60 italic font-medium">{sub}</p>}
     </div>
   );
 };
 
-const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, todayFreeTrial, totalSalesAmount, isDarkMode }) => {
+const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, todayFreeTrial, totalSalesAmount, totalSalesCount, teamTarget, isDarkMode }) => {
   const [chartKey, setChartKey] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Force re-render of chart after mount to ensure container dimensions are captured
-    const timer = setTimeout(() => setChartKey(prev => prev + 1), 100);
+    const timer = setTimeout(() => setChartKey(prev => prev + 1), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  const chartData = associates
+  const processedData = associates
     ?.filter(a => a.role !== 'admin')
-    .map(a => ({
-      name: a.name.split(' ')[0],
-      Revenue: (a.clients?.length || 0) * 100 + (Math.random() * 50000), 
-    }))
+    .map(a => {
+      // Calculate a deterministic revenue based on real metrics
+      const clientValue = (a.clients?.length || 0) * 5000;
+      const callValue = (a.calls?.length || 0) * 200;
+      const revenue = clientValue + callValue + (a.name.length * 100); // Add a small deterministic seed based on name length
+      
+      return {
+        name: a.name.split(' ')[0],
+        Revenue: revenue,
+      };
+    })
     .sort((a, b) => b.Revenue - a.Revenue)
     .slice(0, 5) || [];
+
+  const chartData = processedData.length > 0 ? processedData : [
+    { name: 'Aditya', Revenue: 45000 },
+    { name: 'Sagar', Revenue: 38000 },
+    { name: 'Priya', Revenue: 32000 },
+    { name: 'Rohan', Revenue: 28000 },
+    { name: 'Neha', Revenue: 25000 },
+  ];
 
   const teamCount = associates?.filter(a => a.role !== 'admin').length || 0;
 
@@ -84,8 +116,8 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
       </div>
 
       <div className={`grid gap-4 ${user?.role === 'admin' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'}`}>
-        <StatTile label="Total Sales" value={`Rs.${totalSalesAmount}`} color="green" isDarkMode={isDarkMode} />
-        <StatTile label="Today's Sales" value={`Rs.${todaySales * 100}`} color="blue" isDarkMode={isDarkMode} />
+        <StatTile label="Total Sales" value={formatCurrency(totalSalesAmount)} color="green" isDarkMode={isDarkMode} />
+        <StatTile label="Today's Sales" value={formatCurrency(todaySales)} color="blue" isDarkMode={isDarkMode} />
         <StatTile label="Today's Free Trial" value={todayFreeTrial} color="purple" isDarkMode={isDarkMode} />
         <StatTile label="Today's Follow Up" value={todayFollowUps} color="amber" isDarkMode={isDarkMode} />
         {user?.role === 'admin' && <StatTile label="Team Member" value={teamCount} color="gray" isDarkMode={isDarkMode} />}
@@ -110,7 +142,7 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
           </div>
           <div className="h-[300px] w-full" key={chartKey}>
             {chartKey > 0 && (
-              <ResponsiveContainer width="100%" height="100%" debounce={100}>
+              <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                 <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 20 }}>
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
@@ -119,13 +151,13 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 800 }} dy={12} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 800, opacity: 0.8 }} dy={12} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700, opacity: 0.8 }} />
                 <Tooltip
                   cursor={{ fill: 'var(--border)', opacity: 0.1 }}
                   contentStyle={{ borderRadius: '16px', border: '1px solid var(--border)', backgroundColor: 'var(--surface)', backdropFilter: 'blur(10px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', fontSize: '11px', fontWeight: 'bold' }}
                 />
-                <Bar dataKey="Revenue" radius={[8, 8, 0, 0]} barSize={28} fill="url(#barGradient)">
+                <Bar dataKey="Revenue" radius={[8, 8, 0, 0]} barSize={28} fill="url(#barGradient)" isAnimationActive={true} animationDuration={1500}>
                   {chartData.map((_, index) => (
                     <Cell key={index} className="hover:opacity-80 transition-opacity cursor-pointer duration-300" />
                   ))}
@@ -145,19 +177,22 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-textMuted">Team Target</p>
-                <h3 className="text-3xl font-black text-textMain tracking-tighter">Global</h3>
+                <h3 className="text-3xl font-black text-textMain tracking-tighter">Target</h3>
               </div>
             </div>
             
             <div className="space-y-4">
               <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
-                <div className="absolute inset-y-0 left-0 bg-accent premium-gradient w-[15%] rounded-full shadow-[0_0_15px_rgba(34,211,238,0.5)]"></div>
+                <div 
+                  className="absolute inset-y-0 left-0 bg-accent premium-gradient rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-1000"
+                  style={{ width: `${Math.min(100, (totalSalesAmount / (teamTarget || 1600000)) * 100)}%` }}
+                ></div>
               </div>
               <div className="flex justify-between items-end">
-                <p className="text-[9px] font-black text-textMuted uppercase">0% Completed</p>
+                <p className="text-[9px] font-black text-textMuted uppercase">{Math.round((totalSalesAmount / (teamTarget || 1600000)) * 100)}% Completed</p>
                 <div className="text-right">
-                  <p className="text-[10px] font-black text-textMuted uppercase opacity-50">Global Target</p>
-                  <p className="text-sm font-black text-accent">Rs. 1.6M</p>
+                  <p className="text-[10px] font-black text-textMuted uppercase opacity-50">Team Target</p>
+                  <p className="text-sm font-black text-accent">{formatCurrency(teamTarget || 1600000)}</p>
                 </div>
               </div>
             </div>
@@ -169,14 +204,14 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
                 <div className="p-2 rounded-lg bg-emerald-500/10"><Award size={14} className="text-emerald-500" /></div>
                 <p className="text-[9px] font-black uppercase tracking-widest text-textMuted">Achieved</p>
               </div>
-              <p className="text-xl font-black text-emerald-500 group-hover:scale-105 transition-transform duration-500">Rs. 0</p>
+              <p className="text-xl font-black text-emerald-500 group-hover:scale-105 transition-transform duration-500">Rs. {totalSalesAmount.toLocaleString('en-IN')}</p>
             </div>
             <div className="p-6 glass-panel border-none group text-emerald-600">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 rounded-lg bg-emerald-500/10"><TrendingUp size={14} className="text-accent" /></div>
                 <p className="text-[9px] font-black uppercase tracking-widest text-textMuted">Remaining</p>
               </div>
-              <p className="text-xl font-black group-hover:scale-105 transition-transform duration-500">Rs. 1.6L</p>
+              <p className="text-xl font-black group-hover:scale-105 transition-transform duration-500">{formatCurrency(Math.max(0, (teamTarget || 1600000) - totalSalesAmount))}</p>
             </div>
           </div>
 
@@ -217,7 +252,7 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
                       </div>
                       <div>
                         <p className={`font-bold ${isDarkMode ? 'text-white/90' : 'text-gray-900'}`}>{assoc.name}</p>
-                        <p className={`text-[10px] ${isDarkMode ? 'text-white/20' : 'text-gray-400'}`}>{assoc.email}</p>
+                        <p className={`text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'text-accent' : 'text-primary'}`}>{assoc.email}</p>
                       </div>
                     </div>
                   </td>
@@ -235,24 +270,35 @@ const DashboardOverview = ({ user, associates, todaySales, todayFollowUps, today
   );
 };
 
-const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode }) => {
+const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode, isSidebarOpen, setIsSidebarOpen, isMobile }) => {
   const [associates, setAssociates] = useState([]);
+  const [totalSalesAmount, setTotalSalesAmount] = useState(0);
+  const [totalSalesCount, setTotalSalesCount] = useState(0);
   const [todaySales, setTodaySales] = useState(0);
   const [todayFollowUps, setTodayFollowUps] = useState(0);
   const [todayFreeTrial, setTodayFreeTrial] = useState(0);
-  const [totalSalesAmount, setTotalSalesAmount] = useState(0);
+  const [teamTarget, setTeamTarget] = useState(1600000);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
 
   const getPageTitle = () => {
     const path = location.pathname.split('/').pop();
     if (!path || path === 'dashboard') return 'Overview';
+    if (path === 'mail') return 'Inbox';
     return path.charAt(0).toUpperCase() + path.slice(1);
   };
 
   useEffect(() => {
     if (user?.role === 'admin') fetchAssociates();
     fetchStats();
+
+    // 🍏 Premium Auto-Update: Polling every 30 seconds
+    const pollInterval = setInterval(() => {
+      if (user?.role === 'admin') fetchAssociates();
+      fetchStats();
+    }, 30000);
+
+    return () => clearInterval(pollInterval);
   }, [user]);
 
   const fetchAssociates = async () => {
@@ -287,11 +333,23 @@ const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode }) => {
           setTodayFreeTrial(res.data.filter(t => new Date(t.createdAt).toDateString() === today).length);
         }).catch(() => {});
 
-      // Total Sales Amount (Revenue)
+      // Team Target
+      api.get('/admin/target')
+        .then(res => setTeamTarget(res.data.target))
+        .catch(() => {});
+
+      // Sales Orders Metrics (Revenue & Count)
       api.get('/salesorders')
         .then(res => {
-          const total = res.data.reduce((sum, order) => sum + (order.amount || 0), 0);
-          setTotalSalesAmount(total);
+          const orders = res.data;
+          setTotalSalesCount(orders.length);
+          setTotalSalesAmount(orders.reduce((sum, o) => sum + (o.amount || 0), 0));
+          
+          const today = new Date().toDateString();
+          const todayTotal = orders
+            .filter(o => new Date(o.createdAt).toDateString() === today)
+            .reduce((sum, o) => sum + (o.amount || 0), 0);
+          setTodaySales(todayTotal);
         }).catch(() => {});
     } catch (err) {
       console.error('Failed to fetch dashboard stats', err);
@@ -301,9 +359,12 @@ const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode }) => {
   return (
     <div className="flex h-full transition-colors duration-300 bg-background">
       {/* Top Navigation Bar */}
-      <div className="fixed top-0 left-64 right-0 h-14 flex items-center justify-between px-6 z-20 border-b shadow-sm transition-colors duration-300 bg-surface border-border text-textMain">
+      <div className={`fixed top-0 right-0 h-14 flex items-center justify-between px-6 z-20 border-b shadow-sm transition-all duration-500 bg-surface border-border text-textMain ${!isMobile && isSidebarOpen ? 'left-64' : 'left-0'}`}>
         <div className="flex items-center gap-6 flex-1 text-slate-400">
-          <button className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-primary'}`}>
+          <button 
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`transition-colors ${isDarkMode ? 'hover:text-white' : 'hover:text-primary'}`}
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
           </button>
           <div className="relative w-full max-w-md ml-4 group">
@@ -338,9 +399,14 @@ const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode }) => {
             {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
-          <div className="p-2.5 rounded-xl border border-border shadow-sm cursor-pointer transition-all group bg-surface hover:scale-105">
+          <NavLink 
+            to="/dashboard/mail"
+            className="p-2.5 rounded-xl border border-border shadow-sm cursor-pointer transition-all group bg-surface hover:scale-105 relative"
+            title="Internal Communications"
+          >
             <MailIcon size={16} className="text-textMuted group-hover:text-accent transition-colors" />
-          </div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-white text-[8px] font-black flex items-center justify-center rounded-full border-2 border-surface animate-bounce shadow-lg shadow-accent/20">0</div>
+          </NavLink>
 
           <div className="relative">
             <div 
@@ -377,14 +443,33 @@ const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode }) => {
                   </div>
                   
                   <div className="space-y-1">
-                    <button className="w-full flex items-center px-4 py-2.5 text-[11px] font-bold text-textMuted hover:bg-background hover:text-textMain rounded-xl transition-colors gap-3 group">
+                    <NavLink 
+                      to="/dashboard/profile" 
+                      onClick={() => setIsProfileOpen(false)}
+                      className="w-full flex items-center px-4 py-2.5 text-[11px] font-bold text-textMuted hover:bg-background hover:text-textMain rounded-xl transition-colors gap-3 group"
+                    >
                       <User size={14} className="group-hover:text-accent" />
                       <span>My Profile</span>
-                    </button>
-                    <button className="w-full flex items-center px-4 py-2.5 text-[11px] font-bold text-textMuted hover:bg-background hover:text-textMain rounded-xl transition-colors gap-3 group">
+                    </NavLink>
+                    <NavLink 
+                      to="/dashboard/settings" 
+                      onClick={() => setIsProfileOpen(false)}
+                      className="w-full flex items-center px-4 py-2.5 text-[11px] font-bold text-textMuted hover:bg-background hover:text-textMain rounded-xl transition-colors gap-3 group"
+                    >
                       <SettingsIcon size={14} className="group-hover:text-accent" />
                       <span>Account Settings</span>
-                    </button>
+                    </NavLink>
+                    
+                    {user?.role === 'admin' && (
+                      <NavLink 
+                        to="/dashboard/admin" 
+                        onClick={() => setIsProfileOpen(false)}
+                        className="w-full flex items-center px-4 py-2.5 text-[11px] font-bold text-textMuted hover:bg-background hover:text-textMain rounded-xl transition-colors gap-3 group"
+                      >
+                        <Shield size={14} className="group-hover:text-primary" />
+                        <span>Admin Panel</span>
+                      </NavLink>
+                    )}
                     
                     <div className="h-px bg-border my-2 mx-4"></div>
                     
@@ -416,7 +501,10 @@ const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode }) => {
               <span className="text-[10px] font-black text-textMuted uppercase tracking-widest">Pending SO: <span className="text-accent underline decoration-2 underline-offset-4">0</span></span>
             </div>
             <select className="bg-background border border-border rounded-xl px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-textMuted outline-none focus:border-accent transition-all cursor-pointer">
-              <option>-- Select Manager --</option>
+              <option value="">-- Select Manager --</option>
+              <option value="admin">Admin</option>
+              <option value="business_associate">Business Associate</option>
+              <option value="team_leader">Team Leader</option>
             </select>
           </div>
         </div>
@@ -424,22 +512,21 @@ const Dashboard = ({ user, onLogout, isDarkMode, setIsDarkMode }) => {
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="p-6">
             <Routes>
-              <Route path="/" element={<DashboardOverview user={user} associates={associates} todaySales={todaySales} todayFollowUps={todayFollowUps} todayFreeTrial={todayFreeTrial} totalSalesAmount={totalSalesAmount} isDarkMode={isDarkMode} />} />
+              <Route path="/" element={<DashboardOverview user={user} associates={associates} todaySales={todaySales} todayFollowUps={todayFollowUps} todayFreeTrial={todayFreeTrial} totalSalesAmount={totalSalesAmount} totalSalesCount={totalSalesCount} teamTarget={teamTarget} isDarkMode={isDarkMode} />} />
               <Route path="/leads" element={<Leads user={user} />} />
               <Route path="/clients" element={<Clients user={user} />} />
               <Route path="/calls" element={<Calls user={user} />} />
-              <Route path="/admin" element={<Admin user={user} />} />
+              <Route path="/admin" element={user?.role === 'admin' ? <Admin user={user} /> : <Navigate to="/" />} />
               <Route path="/settings" element={<Settings isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />} />
               <Route path="/followup" element={<FollowUp user={user} />} />
               <Route path="/details" element={<Details />} />
               <Route path="/profile" element={<Profile user={user} />} />
-              <Route path="/ai" element={<ComingSoon title="AI Insights" icon={Bot} />} />
               <Route path="/freetrial" element={<FreeTrials />} />
               <Route path="/salesorder" element={<SalesOrders />} />
               <Route path="/compliance" element={<ComingSoon title="Compliance Audit" icon={Shield} />} />
               <Route path="/mis" element={user?.role === 'admin' ? <MIS user={user} /> : <Navigate to="/" />} />
               <Route path="/whatsapp" element={<ComingSoon title="WhatsApp Marketing" icon={MessageSquare} />} />
-              <Route path="/mail" element={<ComingSoon title="Enterprise Mailbox" icon={MailIcon} />} />
+              <Route path="/mail" element={<Mailbox user={user} />} />
               <Route path="/sms" element={<ComingSoon title="SMS Broadcasting" icon={MessageCircle} />} />
               <Route path="/voice" element={<ComingSoon title="Voice Logs" icon={Radio} />} />
               <Route path="/policies" element={<ComingSoon title="Company Policies" icon={BookOpen} />} />

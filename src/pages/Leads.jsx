@@ -150,10 +150,6 @@ const Leads = ({ user }) => {
       {/* Header */}
       <div className="flex justify-between items-start gap-6">
         <div className="flex items-center gap-4">
-          <button className="px-8 py-4 bg-accent text-white rounded-[1.25rem] font-black uppercase tracking-widest flex items-center hover:opacity-90 transition-all shadow-lg shadow-accent/25 active:scale-95">
-            <UserPlus size={18} className="mr-3" />
-            Fresh Pool
-          </button>
           <div className="flex flex-col gap-2">
             <button
               onClick={() => setShowAddModal(true)}
@@ -161,12 +157,6 @@ const Leads = ({ user }) => {
             >
               <UserPlus size={14} className="mr-2" />
               Add Leads
-            </button>
-            <button
-              onClick={fetchLeads}
-              className="px-4 py-2 bg-surface text-textMuted border border-border rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-background transition-all flex items-center justify-center gap-2"
-            >
-              <RefreshCw size={12} className="text-primary" /> Refresh
             </button>
           </div>
         </div>
@@ -202,7 +192,7 @@ const Leads = ({ user }) => {
           <FilterSelect label="Marked As" value={filterMarkedAs} onChange={setFilterMarkedAs} options={['All', 'Unread', 'Read', 'Converted', 'Disposed']} />
           <FilterSelect label="Status" value={filterStatus} onChange={setFilterStatus} options={STATUSES_ALL} />
           <FilterSelect label="By Date" value="All" onChange={()=>{}} options={['All', 'Today', 'Yesterday', 'Last 7 Days']} />
-          <FilterSelect label="Manager" value="All" onChange={()=>{}} options={['All', 'Manager A', 'Manager B']} />
+          <FilterSelect label="Manager" value="All" onChange={()=>{}} options={['All', 'Admin', 'Business Associate', 'Team Leader']} />
           <FilterSelect label="Lead Source" value={filterSource} onChange={setFilterSource} options={SOURCES} />
           <FilterSelect label="Segment" value={filterSegment} onChange={setFilterSegment} options={SEGMENTS} />
         </div>
@@ -356,9 +346,9 @@ const Leads = ({ user }) => {
               
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">Digital Mail</label>
-                  <input type="email" value={newLead.email} onChange={e => setNewLead({ ...newLead, email: e.target.value })}
-                    className="w-full px-5 py-3 bg-background border border-border rounded-2xl text-sm focus:border-accent outline-none text-textMain transition-all shadow-sm" placeholder="optional" />
+                  <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">Digital Identity</label>
+                  <input type="text" value={newLead.email} onChange={e => setNewLead({ ...newLead, email: e.target.value })}
+                    className="w-full px-5 py-3 bg-background border border-border rounded-2xl text-sm focus:border-accent outline-none text-textMain transition-all shadow-sm" placeholder="user_amigo" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-textMuted uppercase tracking-widest ml-1">Organization</label>

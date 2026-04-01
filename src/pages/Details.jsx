@@ -83,7 +83,7 @@ const Details = () => {
               <tr className="bg-background/20 text-textMuted">
                 <th className="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em]">Operator Identity</th>
                 <th className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.2em]">SIP Cipher</th>
-                <th className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.2em]">Communication Uplink</th>
+                <th className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.2em]">Identity Node</th>
                 <th className="px-8 py-5 text-[11px] font-black uppercase tracking-[0.2em]">Hierarchy Status</th>
                 <th className="px-10 py-5 text-[11px] font-black uppercase tracking-[0.2em] text-right">Integrity Score</th>
               </tr>
@@ -93,7 +93,7 @@ const Details = () => {
                 <tr key={assoc._id || assoc.id} className="hover:bg-background/80 transition-all group">
                   <td className="px-10 py-6 font-black text-textMain text-sm tracking-tight group-hover:text-primary transition-colors">{assoc.name}</td>
                   <td className="px-8 py-6 font-black text-primary tabular-nums text-xs tracking-[0.2em] uppercase opacity-60">SIP/{assoc.sipExtension}</td>
-                  <td className="px-8 py-6 text-[11px] font-medium text-textMuted tracking-tight">{assoc.email}</td>
+                  <td className="px-8 py-6 text-[10px] font-black text-textMuted tracking-widest uppercase italic">{assoc.email}</td>
                   <td className="px-8 py-6">
                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-current shadow-sm ${assoc.role === 'admin' ? 'text-amber-500' : 'text-emerald-500'}`}>
                       {assoc.role}

@@ -11,7 +11,6 @@ const Sidebar = ({ onLogout, user, isMobile, onClose, isDarkMode }) => {
 
   const adminItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
-    { name: 'AI',        icon: Bot,             path: '/dashboard/ai',         adminOnly: true },
     { name: 'Leads',     icon: UserPlus,         path: '/dashboard/leads' },
     { name: 'Contacts',  icon: Users,            path: '/dashboard/clients' },
     { name: 'Follow up', icon: Clock,            path: '/dashboard/followup' },
@@ -21,16 +20,13 @@ const Sidebar = ({ onLogout, user, isMobile, onClose, isDarkMode }) => {
     { name: 'Compliance',icon: Shield,           path: '/dashboard/compliance', adminOnly: true },
     { name: 'MIS',       icon: BarChart2,        path: '/dashboard/mis',        adminOnly: true },
     { name: 'Whatsapp',  icon: MessageSquare,    path: '/dashboard/whatsapp',   adminOnly: true },
-    { name: 'Mail Box',  icon: Mail,             path: '/dashboard/mail' },
+    { name: 'Inbox',    icon: Mail,             path: '/dashboard/mail' },
     { name: 'SMS Box',   icon: MessageCircle,    path: '/dashboard/sms' },
     { name: 'Voice Box', icon: Radio,            path: '/dashboard/voice' },
     { name: 'Policies',  icon: BookOpen,         path: '/dashboard/policies' },
     { name: 'Reports',   icon: BarChart2,        path: '/dashboard/reports',    adminOnly: true },
     { name: 'Call Logs', icon: PhoneCall,        path: '/dashboard/calls' },
     { name: 'Details',   icon: Info,             path: '/dashboard/details' },
-    { name: 'Profile',   icon: User,             path: '/dashboard/profile' },
-    { name: 'Admin Panel',icon: Shield,          path: '/dashboard/admin',      adminOnly: true },
-    { name: 'Settings',  icon: SettingsIcon,     path: '/dashboard/settings' },
   ];
 
   const navItems = adminItems.filter(item => {
@@ -81,7 +77,7 @@ const Sidebar = ({ onLogout, user, isMobile, onClose, isDarkMode }) => {
               `flex items-center px-5 py-3 rounded-2xl transition-all text-[10px] font-black uppercase tracking-[0.15em] relative group ${
                 isActive
                   ? 'bg-accent/10 text-accent shadow-[0_10px_30px_rgba(34,211,238,0.15)] border border-accent/10 translate-x-2'
-                  : 'text-textMuted hover:bg-white/5 hover:text-textMain border border-transparent'
+                  : 'text-boltBlack hover:bg-white/5 hover:text-accent border border-transparent'
               }`
             }
           >
